@@ -101,3 +101,125 @@
   padding: 3rem;
   color: #dc2626;
 }
+
+.board-page__cell--actions {
+  width: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-page__delete-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #9ca3af;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s ease, background-color 0.15s ease, color 0.15s ease;
+}
+
+.board-page__row:hover .board-page__delete-btn {
+  opacity: 1;
+}
+
+.board-page__delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.board-page__delete-btn:active {
+  background: #fecaca;
+}
+
+/* Add Item Button */
+.board-page__add-item-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: #6b7280;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.board-page__add-item-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.board-page__add-item-btn svg {
+  opacity: 0.7;
+}
+
+/* Add Item Row */
+.board-page__add-row {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+}
+
+.board-page__add-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.board-page__add-input:focus {
+  border-color: #579bfc;
+  box-shadow: 0 0 0 2px rgba(87, 155, 252, 0.2);
+}
+
+.board-page__add-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0 1rem;
+}
+
+.board-page__add-confirm,
+.board-page__add-cancel {
+  padding: 0.375rem 0.75rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.board-page__add-confirm {
+  background: #579bfc;
+  color: #fff;
+}
+
+.board-page__add-confirm:hover:not(:disabled) {
+  background: #4a8ae8;
+}
+
+.board-page__add-confirm:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+}
+
+.board-page__add-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.board-page__add-cancel:hover {
+  background: #d1d5db;
+}
