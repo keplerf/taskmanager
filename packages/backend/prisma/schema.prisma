@@ -1,0 +1,285 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// AUTHENTICATION & USER MANAGEMENT
+// ============================================
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  firstName     String    @map("first_name")
+  lastName      String    @map("last_name")
+  avatarUrl     String?   @map("avatar_url")
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  refreshTokens     RefreshToken[]
+  organizationUsers OrganizationUser[]
+  workspaceUsers    WorkspaceUser[]
+  assignedItems     ItemAssignee[]
+  createdItems      Item[]             @relation("ItemCreator")
+  updatedItems      Item[]             @relation("ItemUpdater")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(500)
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+// ============================================
+// ORGANIZATION & WORKSPACE HIERARCHY
+// ============================================
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  logoUrl   String?  @map("logo_url")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users      OrganizationUser[]
+  workspaces Workspace[]
+
+  @@map("organizations")
+}
+
+model OrganizationUser {
+  id             String           @id @default(uuid())
+  userId         String           @map("user_id")
+  organizationId String           @map("organization_id")
+  role           OrganizationRole @default(MEMBER)
+  createdAt      DateTime         @default(now()) @map("created_at")
+
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+  @@map("organization_users")
+}
+
+enum OrganizationRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model Workspace {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?  @db.Text
+  color          String?  @default("#0073ea")
+  organizationId String   @map("organization_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  users        WorkspaceUser[]
+  boards       Board[]
+
+  @@index([organizationId])
+  @@map("workspaces")
+}
+
+model WorkspaceUser {
+  id          String        @id @default(uuid())
+  userId      String        @map("user_id")
+  workspaceId String        @map("workspace_id")
+  role        WorkspaceRole @default(MEMBER)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, workspaceId])
+  @@index([workspaceId])
+  @@map("workspace_users")
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+// ============================================
+// BOARDS & STRUCTURE
+// ============================================
+
+model Board {
+  id          String   @id @default(uuid())
+  name        String
+  description String?  @db.Text
+  workspaceId String   @map("workspace_id")
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  workspace Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  columns   BoardColumn[]
+  groups    ItemGroup[]
+
+  @@index([workspaceId])
+  @@map("boards")
+}
+
+model BoardColumn {
+  id        String     @id @default(uuid())
+  boardId   String     @map("board_id")
+  title     String
+  type      ColumnType
+  width     Int        @default(150)
+  position  Int        @default(0)
+  settings  Json?
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  board  Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  values ItemValue[]
+
+  @@index([boardId])
+  @@map("board_columns")
+}
+
+enum ColumnType {
+  TEXT
+  LONG_TEXT
+  NUMBER
+  STATUS
+  DATE
+  PERSON
+  CHECKBOX
+  LINK
+  EMAIL
+  PHONE
+  RATING
+  TAGS
+  TIMELINE
+  FILE
+  FORMULA
+}
+
+// ============================================
+// ITEMS & VALUES
+// ============================================
+
+model ItemGroup {
+  id        String   @id @default(uuid())
+  boardId   String   @map("board_id")
+  name      String
+  color     String   @default("#579bfc")
+  position  Int      @default(0)
+  collapsed Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  board Board  @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  items Item[]
+
+  @@index([boardId])
+  @@map("item_groups")
+}
+
+model Item {
+  id          String   @id @default(uuid())
+  groupId     String   @map("group_id")
+  name        String
+  position    Int      @default(0)
+  createdById String?  @map("created_by_id")
+  updatedById String?  @map("updated_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  group     ItemGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy User?          @relation("ItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy User?          @relation("ItemUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  values    ItemValue[]
+  assignees ItemAssignee[]
+  ctas      ItemCta[]
+
+  @@index([groupId])
+  @@index([createdById])
+  @@map("items")
+}
+
+model ItemValue {
+  id        String   @id @default(uuid())
+  itemId    String   @map("item_id")
+  columnId  String   @map("column_id")
+  value     Json
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  item   Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  column BoardColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, columnId])
+  @@index([itemId])
+  @@index([columnId])
+  @@map("item_values")
+}
+
+model ItemAssignee {
+  id        String   @id @default(uuid())
+  itemId    String   @map("item_id")
+  userId    String   @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, userId])
+  @@index([itemId])
+  @@index([userId])
+  @@map("item_assignees")
+}
+
+// ============================================
+// CALL-TO-ACTION (CTA) BUTTONS
+// ============================================
+
+model ItemCta {
+  id        String    @id @default(uuid())
+  itemId    String    @map("item_id")
+  label     String
+  url       String?
+  type      CtaType   @default(LINK)
+  color     String    @default("#0073ea")
+  position  Int       @default(0)
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@map("item_ctas")
+}
+
+enum CtaType {
+  LINK
+  BUTTON
+  ACTION
+}

@@ -1,0 +1,30 @@
+{
+  "name": "keplerweb2025-monorepo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "dev:frontend": "npm run dev -w @keplerweb/frontend",
+    "dev:backend": "npm run dev -w @keplerweb/backend",
+    "build": "npm run build --workspaces --if-present",
+    "build:frontend": "npm run build -w @keplerweb/frontend",
+    "build:backend": "npm run build -w @keplerweb/backend",
+    "lint": "npm run lint --workspaces --if-present",
+    "db:generate": "npm run db:generate -w @keplerweb/backend",
+    "db:migrate": "npm run db:migrate -w @keplerweb/backend",
+    "db:push": "npm run db:push -w @keplerweb/backend",
+    "db:seed": "npm run db:seed -w @keplerweb/backend",
+    "db:studio": "npm run db:studio -w @keplerweb/backend",
+    "clean": "rm -rf packages/*/node_modules packages/*/dist node_modules"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

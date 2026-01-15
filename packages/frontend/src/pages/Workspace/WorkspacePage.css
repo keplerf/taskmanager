@@ -1,0 +1,79 @@
+.workspace-page__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.workspace-page__color {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+}
+
+.workspace-page__header h1 {
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.workspace-page__header p {
+  color: #6b7280;
+  margin: 0.25rem 0 0 0;
+}
+
+.workspace-page__boards {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-page__boards h2 {
+  color: #1a1a2e;
+  margin: 0 0 1.5rem 0;
+  font-size: 1.25rem;
+}
+
+.workspace-page__empty {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.workspace-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.workspace-page__board-card {
+  display: block;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.25rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.workspace-page__board-card:hover {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.workspace-page__board-card h3 {
+  color: #1a1a2e;
+  margin: 0 0 0.5rem 0;
+}
+
+.workspace-page__board-card p {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.workspace-page__error {
+  text-align: center;
+  padding: 3rem;
+  color: #dc2626;
+}
