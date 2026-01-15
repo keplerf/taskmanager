@@ -3,23 +3,15 @@ import { Link } from 'react-router-dom';
 import { workspaceService } from '../../services';
 import './DashboardPage.css';
 
-interface Workspace {
-  id: string;
-  name: string;
-  description: string | null;
-  color: string;
-  boards: { id: string; name: string }[];
-}
-
 export default function DashboardPage() {
-  const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
+  const [workspaces, setWorkspaces] = useState<Awaited<ReturnType<typeof workspaceService.getWorkspaces>>>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchWorkspaces() {
       try {
         const data = await workspaceService.getWorkspaces();
-        setWorkspaces(data as Workspace[]);
+        setWorkspaces(data);
       } catch (error) {
         console.error('Failed to fetch workspaces:', error);
       } finally {

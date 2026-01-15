@@ -3,19 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { workspaceService } from '../../services';
 import './WorkspacePage.css';
 
-interface Board {
-  id: string;
-  name: string;
-  description: string | null;
-}
-
-interface Workspace {
-  id: string;
-  name: string;
-  description: string | null;
-  color: string;
-  boards: Board[];
-}
+type Workspace = Awaited<ReturnType<typeof workspaceService.getWorkspace>>;
 
 export default function WorkspacePage() {
   const { workspaceId } = useParams<{ workspaceId: string }>();
@@ -28,7 +16,7 @@ export default function WorkspacePage() {
 
       try {
         const data = await workspaceService.getWorkspace(workspaceId);
-        setWorkspace(data as Workspace);
+        setWorkspace(data);
       } catch (error) {
         console.error('Failed to fetch workspace:', error);
       } finally {

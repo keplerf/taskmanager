@@ -138,7 +138,7 @@ export async function createColumn(input: CreateColumnInput) {
       title: input.title,
       type: input.type,
       position: input.position ?? (maxPosition._max.position ?? -1) + 1,
-      settings: input.settings,
+      settings: input.settings as Parameters<typeof prisma.boardColumn.create>[0]['data']['settings'],
     },
   });
 }

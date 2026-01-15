@@ -80,7 +80,7 @@ export async function register(input: RegisterInput) {
         },
       });
 
-      const projectBoard = await tx.board.create({
+      await tx.board.create({
         data: {
           name: 'Project Tasks',
           description: 'Manage your project tasks here',

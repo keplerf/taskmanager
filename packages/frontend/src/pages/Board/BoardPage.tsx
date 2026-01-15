@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { boardService } from '../../services';
 import { useBoardStore } from '../../stores/boardStore';
 import { TaskSidebar } from '../../components/TaskSidebar';
+import { getColumnValue } from '../../utils';
 import './BoardPage.css';
 
 function TrashIcon() {
@@ -43,45 +44,6 @@ function PlusIcon() {
   );
 }
 
-interface BoardColumn {
-  id: string;
-  title: string;
-  type: string;
-  width: number;
-  position: number;
-}
-
-interface ItemValue {
-  id: string;
-  columnId: string;
-  value: unknown;
-}
-
-interface Item {
-  id: string;
-  name: string;
-  position: number;
-  groupId: string;
-  values: ItemValue[];
-}
-
-interface ItemGroup {
-  id: string;
-  name: string;
-  color: string;
-  position: number;
-  collapsed: boolean;
-  items: Item[];
-}
-
-interface Board {
-  id: string;
-  name: string;
-  description: string | null;
-  columns: BoardColumn[];
-  groups: ItemGroup[];
-}
-
 export default function BoardPage() {
   const { boardId } = useParams<{ boardId: string }>();
   const [isLoading, setIsLoading] = useState(true);
@@ -95,7 +57,7 @@ export default function BoardPage() {
 
       try {
         const data = await boardService.getBoard(boardId);
-        setBoardData(data as Board);
+        setBoardData(data);
       } catch (error) {
         console.error('Failed to fetch board:', error);
       } finally {
@@ -123,49 +85,6 @@ export default function BoardPage() {
       </div>
     );
   }
-
-  const getColumnValue = (item: Item, columnId: string) => {
-    const value = item.values.find((v) => v.columnId === columnId);
-    if (!value || value.value === null || value.value === undefined) return '';
-
-    // Handle different value types
-    const val = value.value;
-
-    // If it's a primitive (string, number, boolean), return as string
-    if (typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean') {
-      return String(val);
-    }
-
-    // If it's an object, extract the appropriate value
-    if (typeof val === 'object' && val !== null) {
-      // Check for common property names in order of priority
-      if ('label' in val) return String((val as { label: unknown }).label);
-      if ('value' in val) return String((val as { value: unknown }).value);
-      if ('name' in val) return String((val as { name: unknown }).name);
-      if ('text' in val) return String((val as { text: unknown }).text);
-      // For date objects
-      if ('date' in val) return String((val as { date: unknown }).date);
-
-      // If it's an array (e.g., tags), extract and join values
-      if (Array.isArray(val)) {
-        return val.map(v => {
-          if (typeof v === 'string' || typeof v === 'number') return v;
-          if (typeof v === 'object' && v !== null) {
-            if ('label' in v) return (v as { label: unknown }).label;
-            if ('value' in v) return (v as { value: unknown }).value;
-            if ('name' in v) return (v as { name: unknown }).name;
-            if ('text' in v) return (v as { text: unknown }).text;
-          }
-          return v;
-        }).join(', ');
-      }
-
-      // Last resort: JSON stringify but without quotes
-      return JSON.stringify(val);
-    }
-
-    return '';
-  };
 
   const handleItemClick = (itemId: string) => {
     setSelectedItemId(itemId);
@@ -206,7 +125,7 @@ export default function BoardPage() {
     if (!name) return;
 
     try {
-      const newItem = await boardService.createItem({ groupId, name }) as Item;
+      const newItem = await boardService.createItem({ groupId, name }) as { id: string; name: string; position: number; groupId: string };
 
       // Add the new item to the board data
       setBoardData({
@@ -283,7 +202,7 @@ export default function BoardPage() {
                       className="board-page__cell"
                       style={{ width: column.width }}
                     >
-                      {getColumnValue(item, column.id)}
+                      {getColumnValue(item.values, column.id)}
                     </div>
                   ))}
                   <div className="board-page__cell board-page__cell--actions">
