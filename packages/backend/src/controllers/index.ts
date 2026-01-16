@@ -1,3 +1,4 @@
+export * as activityController from './activity.controller.js';
 export * as authController from './auth.controller.js';
 export * as boardController from './board.controller.js';
 export * as ctaController from './cta.controller.js';

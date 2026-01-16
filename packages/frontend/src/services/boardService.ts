@@ -6,12 +6,22 @@ interface ItemValue {
   value: unknown;
 }
 
+interface UserInfo {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
+
 interface Item {
   id: string;
   name: string;
   position: number;
   groupId: string;
+  createdAt: string;
   values: ItemValue[];
+  createdBy: UserInfo | null;
+  assignees: { user: UserInfo }[];
 }
 
 interface ItemGroup {
@@ -92,7 +102,7 @@ export async function createGroup(data: {
 }
 
 export async function createItem(data: { groupId: string; name: string }) {
-  const response = await api.post<ApiResponse<unknown>>('/boards/items', data);
+  const response = await api.post<ApiResponse<Item>>('/boards/items', data);
   return response.data.data;
 }
 
@@ -110,9 +120,9 @@ export async function updateItemValue(
 
 export async function updateItem(
   itemId: string,
-  data: { name?: string; position?: number }
+  data: { name?: string; position?: number; createdById?: string }
 ) {
-  const response = await api.patch<ApiResponse<unknown>>(
+  const response = await api.patch<ApiResponse<Item>>(
     `/boards/items/${itemId}`,
     data
   );
@@ -131,6 +141,41 @@ export async function moveItemToGroup(
   const response = await api.patch<ApiResponse<unknown>>(
     `/boards/items/${itemId}/move`,
     { groupId, position }
+  );
+  return response.data.data;
+}
+
+export async function updateItemAssignees(itemId: string, userIds: string[]) {
+  const response = await api.patch<ApiResponse<Item>>(
+    `/boards/items/${itemId}/assignees`,
+    { userIds }
+  );
+  return response.data.data;
+}
+
+export interface Activity {
+  id: string;
+  action: string;
+  field: string | null;
+  oldValue: unknown;
+  newValue: unknown;
+  description: string | null;
+  createdAt: string;
+  user: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    avatarUrl: string | null;
+  };
+}
+
+export async function getItemActivities(
+  itemId: string,
+  limit = 50,
+  offset = 0
+) {
+  const response = await api.get<ApiResponse<Activity[]>>(
+    `/boards/items/${itemId}/activities?limit=${limit}&offset=${offset}`
   );
   return response.data.data;
 }

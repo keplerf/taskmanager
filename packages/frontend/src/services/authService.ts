@@ -63,3 +63,20 @@ export async function logout() {
   useAuthStore.getState().logout();
   localStorage.removeItem('refreshToken');
 }
+
+interface MessageResponse {
+  success: boolean;
+  data: {
+    message: string;
+  };
+}
+
+export async function forgotPassword(email: string) {
+  const response = await api.post<MessageResponse>('/auth/forgot-password', { email });
+  return response.data.data;
+}
+
+export async function resetPassword(token: string, password: string) {
+  const response = await api.post<MessageResponse>('/auth/reset-password', { token, password });
+  return response.data.data;
+}

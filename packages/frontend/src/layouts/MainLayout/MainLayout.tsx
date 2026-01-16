@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
 import { authService } from '../../services';
+import { CreateWorkspaceModal } from '../../components/CreateWorkspaceModal';
 import './MainLayout.css';
 
 export function MainLayout() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCreateWorkspaceModalOpen, setIsCreateWorkspaceModalOpen] = useState(false);
 
   const handleLogout = async () => {
     await authService.logout();
@@ -20,6 +22,12 @@ export function MainLayout() {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const handleCreateWorkspaceSuccess = (workspaceId: string) => {
+    setIsCreateWorkspaceModalOpen(false);
+    closeMobileMenu();
+    navigate(`/workspace/${workspaceId}`);
   };
 
   return (
@@ -51,6 +59,12 @@ export function MainLayout() {
           <Link to="/dashboard" className="main-layout__nav-item" onClick={closeMobileMenu}>
             Dashboard
           </Link>
+          <button
+            className="main-layout__create-btn"
+            onClick={() => setIsCreateWorkspaceModalOpen(true)}
+          >
+            + New Workspace
+          </button>
         </nav>
         <div className="main-layout__user">
           <div className="main-layout__user-info">
@@ -67,6 +81,13 @@ export function MainLayout() {
       <main className="main-layout__content">
         <Outlet />
       </main>
+
+      {isCreateWorkspaceModalOpen && (
+        <CreateWorkspaceModal
+          onClose={() => setIsCreateWorkspaceModalOpen(false)}
+          onSuccess={handleCreateWorkspaceSuccess}
+        />
+      )}
     </div>
   );
 }

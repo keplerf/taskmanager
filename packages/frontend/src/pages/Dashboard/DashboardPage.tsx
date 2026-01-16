@@ -59,9 +59,33 @@ export default function DashboardPage() {
               >
                 <h3>{workspace.name}</h3>
                 {workspace.description && <p>{workspace.description}</p>}
-                <span className="dashboard-page__card-count">
-                  {workspace.boards.length} board(s)
-                </span>
+                <div className="dashboard-page__card-meta">
+                  <span className="dashboard-page__card-count">
+                    {workspace.boards.length} board(s)
+                  </span>
+                  {workspace.users && workspace.users.length > 0 && (
+                    <div className="dashboard-page__card-users">
+                      {workspace.users.slice(0, 3).map((wu: { user: { id: string; firstName: string; lastName: string; avatarUrl: string | null } }) => (
+                        <div
+                          key={wu.user.id}
+                          className="dashboard-page__card-avatar"
+                          title={`${wu.user.firstName} ${wu.user.lastName}`}
+                        >
+                          {wu.user.avatarUrl ? (
+                            <img src={wu.user.avatarUrl} alt="" />
+                          ) : (
+                            <span>{wu.user.firstName[0]}{wu.user.lastName[0]}</span>
+                          )}
+                        </div>
+                      ))}
+                      {workspace.users.length > 3 && (
+                        <div className="dashboard-page__card-avatar dashboard-page__card-avatar--more">
+                          +{workspace.users.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </Link>
             ))}
           </div>

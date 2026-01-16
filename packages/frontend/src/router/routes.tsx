@@ -5,6 +5,8 @@ import { AuthLayout } from '../layouts/AuthLayout';
 import { ProtectedRoute } from './ProtectedRoute';
 
 const LoginPage = lazy(() => import('../pages/Login'));
+const ForgotPasswordPage = lazy(() => import('../pages/ForgotPassword'));
+const ResetPasswordPage = lazy(() => import('../pages/ResetPassword'));
 const DashboardPage = lazy(() => import('../pages/Dashboard'));
 const WorkspacePage = lazy(() => import('../pages/Workspace'));
 const BoardPage = lazy(() => import('../pages/Board'));
@@ -30,6 +32,26 @@ export const router = createBrowserRouter([
       <AuthLayout>
         <SuspenseWrapper>
           <LoginPage />
+        </SuspenseWrapper>
+      </AuthLayout>
+    ),
+  },
+  {
+    path: '/forgot-password',
+    element: (
+      <AuthLayout>
+        <SuspenseWrapper>
+          <ForgotPasswordPage />
+        </SuspenseWrapper>
+      </AuthLayout>
+    ),
+  },
+  {
+    path: '/reset-password',
+    element: (
+      <AuthLayout>
+        <SuspenseWrapper>
+          <ResetPasswordPage />
         </SuspenseWrapper>
       </AuthLayout>
     ),

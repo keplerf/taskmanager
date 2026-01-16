@@ -133,7 +133,7 @@ CREATE TABLE `items` (
     `group_id` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `position` INTEGER NOT NULL DEFAULT 0,
-    `created_by_id` VARCHAR(191) NOT NULL,
+    `created_by_id` VARCHAR(191) NULL,
     `updated_by_id` VARCHAR(191) NULL,
     `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updated_at` DATETIME(3) NOT NULL,
@@ -171,6 +171,22 @@ CREATE TABLE `item_assignees` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- CreateTable
+CREATE TABLE `item_ctas` (
+    `id` VARCHAR(191) NOT NULL,
+    `item_id` VARCHAR(191) NOT NULL,
+    `label` VARCHAR(191) NOT NULL,
+    `url` VARCHAR(191) NULL,
+    `type` ENUM('LINK', 'BUTTON', 'ACTION') NOT NULL DEFAULT 'LINK',
+    `color` VARCHAR(191) NOT NULL DEFAULT '#0073ea',
+    `position` INTEGER NOT NULL DEFAULT 0,
+    `created_at` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updated_at` DATETIME(3) NOT NULL,
+
+    INDEX `item_ctas_item_id_idx`(`item_id`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
 -- AddForeignKey
 ALTER TABLE `refresh_tokens` ADD CONSTRAINT `refresh_tokens_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -202,7 +218,7 @@ ALTER TABLE `item_groups` ADD CONSTRAINT `item_groups_board_id_fkey` FOREIGN KEY
 ALTER TABLE `items` ADD CONSTRAINT `items_group_id_fkey` FOREIGN KEY (`group_id`) REFERENCES `item_groups`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `items` ADD CONSTRAINT `items_created_by_id_fkey` FOREIGN KEY (`created_by_id`) REFERENCES `users`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `items` ADD CONSTRAINT `items_created_by_id_fkey` FOREIGN KEY (`created_by_id`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `items` ADD CONSTRAINT `items_updated_by_id_fkey` FOREIGN KEY (`updated_by_id`) REFERENCES `users`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -218,3 +234,6 @@ ALTER TABLE `item_assignees` ADD CONSTRAINT `item_assignees_item_id_fkey` FOREIG
 
 -- AddForeignKey
 ALTER TABLE `item_assignees` ADD CONSTRAINT `item_assignees_user_id_fkey` FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `item_ctas` ADD CONSTRAINT `item_ctas_item_id_fkey` FOREIGN KEY (`item_id`) REFERENCES `items`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

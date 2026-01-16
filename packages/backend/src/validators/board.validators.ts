@@ -67,6 +67,7 @@ export const updateItemSchema = z.object({
   body: z.object({
     name: z.string().min(1, 'Item name is required').optional(),
     position: z.number().int().min(0).optional(),
+    createdById: z.string().uuid('Invalid user ID').optional(),
   }),
 });
 
@@ -86,6 +87,15 @@ export const moveItemSchema = z.object({
   }),
 });
 
+export const updateItemAssigneesSchema = z.object({
+  params: z.object({
+    itemId: z.string().uuid('Invalid item ID'),
+  }),
+  body: z.object({
+    userIds: z.array(z.string().uuid('Invalid user ID')),
+  }),
+});
+
 export type CreateBoardInput = z.infer<typeof createBoardSchema>['body'];
 export type UpdateBoardInput = z.infer<typeof updateBoardSchema>['body'];
 export type CreateColumnInput = z.infer<typeof createColumnSchema>['body'];
@@ -93,3 +103,4 @@ export type CreateGroupInput = z.infer<typeof createGroupSchema>['body'];
 export type CreateItemInput = z.infer<typeof createItemSchema>['body'];
 export type UpdateItemInput = z.infer<typeof updateItemSchema>['body'];
 export type MoveItemInput = z.infer<typeof moveItemSchema>['body'];
+export type UpdateItemAssigneesInput = z.infer<typeof updateItemAssigneesSchema>['body'];

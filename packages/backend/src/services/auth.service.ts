@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { prisma } from '../config/database.js';
 import { ApiError } from '../utils/ApiError.js';
 import { hashPassword, comparePassword } from '../utils/password.js';
@@ -9,12 +10,33 @@ import {
 } from '../utils/jwt.js';
 import type { RegisterInput, LoginInput } from '../validators/auth.validators.js';
 
+const RESET_TOKEN_EXPIRY_HOURS = 1;
+
 function generateSlug(name: string): string {
   return name
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/(^-|-$)/g, '')
     + '-' + Date.now().toString(36);
+}
+
+const DEFAULT_ORG_SLUG = 'default-organization';
+
+async function getOrCreateDefaultOrganization(tx: Parameters<Parameters<typeof prisma.$transaction>[0]>[0]) {
+  let org = await tx.organization.findUnique({
+    where: { slug: DEFAULT_ORG_SLUG },
+  });
+
+  if (!org) {
+    org = await tx.organization.create({
+      data: {
+        name: 'Default Organization',
+        slug: DEFAULT_ORG_SLUG,
+      },
+    });
+  }
+
+  return org;
 }
 
 export async function register(input: RegisterInput) {
@@ -38,6 +60,19 @@ export async function register(input: RegisterInput) {
       },
     });
 
+    // Get or create the default organization - all users join this
+    const defaultOrg = await getOrCreateDefaultOrganization(tx);
+
+    // Add user to the default organization
+    await tx.organizationUser.create({
+      data: {
+        userId: newUser.id,
+        organizationId: defaultOrg.id,
+        role: 'MEMBER',
+      },
+    });
+
+    // If user provided a custom organization name, also create that
     if (input.organizationName) {
       const org = await tx.organization.create({
         data: {
@@ -207,6 +242,23 @@ export async function register(input: RegisterInput) {
           value: { tagIds: ['2'] }, // Urgent
         },
       });
+    } else {
+      // For users without custom organization, create a workspace in the default org
+      const defaultWorkspace = await tx.workspace.create({
+        data: {
+          name: `${newUser.firstName}'s Workspace`,
+          description: 'Your default workspace',
+          organizationId: defaultOrg.id,
+        },
+      });
+
+      await tx.workspaceUser.create({
+        data: {
+          userId: newUser.id,
+          workspaceId: defaultWorkspace.id,
+          role: 'OWNER',
+        },
+      });
     }
 
     return newUser;
@@ -316,5 +368,122 @@ export async function logout(refreshToken: string) {
   await prisma.refreshToken.updateMany({
     where: { token: refreshToken, revokedAt: null },
     data: { revokedAt: new Date() },
+  });
+}
+
+export async function requestPasswordReset(email: string) {
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  // Always return success to prevent email enumeration
+  if (!user || !user.isActive) {
+    return { message: 'If an account exists, a reset link has been sent' };
+  }
+
+  // Invalidate any existing unused tokens
+  await prisma.passwordResetToken.updateMany({
+    where: { userId: user.id, usedAt: null },
+    data: { usedAt: new Date() },
+  });
+
+  // Generate secure token
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000);
+
+  await prisma.passwordResetToken.create({
+    data: {
+      token: resetToken,
+      userId: user.id,
+      expiresAt,
+    },
+  });
+
+  // For now, log to console (later replace with email service)
+  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const resetUrl = `${frontendUrl}/reset-password?token=${resetToken}`;
+  console.log('\n========================================');
+  console.log('PASSWORD RESET LINK:');
+  console.log(resetUrl);
+  console.log('========================================\n');
+
+  return { message: 'If an account exists, a reset link has been sent' };
+}
+
+export async function resetPassword(token: string, newPassword: string) {
+  const resetToken = await prisma.passwordResetToken.findUnique({
+    where: { token },
+    include: { user: true },
+  });
+
+  if (!resetToken || resetToken.usedAt || resetToken.expiresAt < new Date()) {
+    throw ApiError.badRequest('Invalid or expired reset token');
+  }
+
+  if (!resetToken.user.isActive) {
+    throw ApiError.badRequest('Account is inactive');
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+
+  await prisma.$transaction([
+    prisma.user.update({
+      where: { id: resetToken.userId },
+      data: { passwordHash },
+    }),
+    prisma.passwordResetToken.update({
+      where: { id: resetToken.id },
+      data: { usedAt: new Date() },
+    }),
+    // Invalidate all refresh tokens for security
+    prisma.refreshToken.updateMany({
+      where: { userId: resetToken.userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    }),
+  ]);
+
+  return { message: 'Password reset successfully' };
+}
+
+// Utility function to add all existing users to the default organization
+export async function migrateUsersToDefaultOrganization() {
+  return prisma.$transaction(async (tx) => {
+    // Get or create default organization
+    let defaultOrg = await tx.organization.findUnique({
+      where: { slug: DEFAULT_ORG_SLUG },
+    });
+
+    if (!defaultOrg) {
+      defaultOrg = await tx.organization.create({
+        data: {
+          name: 'Default Organization',
+          slug: DEFAULT_ORG_SLUG,
+        },
+      });
+    }
+
+    // Get all users not in the default organization
+    const usersNotInDefaultOrg = await tx.user.findMany({
+      where: {
+        organizationUsers: {
+          none: {
+            organizationId: defaultOrg.id,
+          },
+        },
+      },
+    });
+
+    // Add them to the default organization
+    for (const user of usersNotInDefaultOrg) {
+      await tx.organizationUser.create({
+        data: {
+          userId: user.id,
+          organizationId: defaultOrg.id,
+          role: 'MEMBER',
+        },
+      });
+    }
+
+    return { migratedCount: usersNotInDefaultOrg.length, organizationId: defaultOrg.id };
   });
 }

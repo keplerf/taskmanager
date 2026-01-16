@@ -1,0 +1,230 @@
+.add-user-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+.add-user-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  max-width: 480px;
+  max-height: 80vh;
+  background-color: var(--background, #ffffff);
+  border-radius: 12px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+.add-user-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+  flex-shrink: 0;
+}
+
+.add-user-modal__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary, #111827);
+  margin: 0;
+}
+
+.add-user-modal__close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: var(--text-secondary, #6b7280);
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.add-user-modal__close:hover {
+  background-color: var(--hover-bg, #f3f4f6);
+  color: var(--text-primary, #111827);
+}
+
+.add-user-modal__content {
+  padding: 1rem 1.5rem 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.add-user-modal__error {
+  padding: 0.75rem 1rem;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--error, #ef4444);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.add-user-modal__loading,
+.add-user-modal__empty {
+  text-align: center;
+  color: var(--text-secondary, #6b7280);
+  padding: 2rem 1rem;
+  font-size: 0.875rem;
+}
+
+.add-user-modal__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-user-modal__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.add-user-modal__item:hover {
+  background-color: var(--hover-bg, #f3f4f6);
+}
+
+.add-user-modal__user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-user-modal__avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.add-user-modal__avatar--placeholder {
+  background-color: var(--primary, #3b82f6);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.add-user-modal__user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-user-modal__user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary, #111827);
+}
+
+.add-user-modal__user-email {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.add-user-modal__add-btn {
+  padding: 0.5rem 1rem;
+  background-color: var(--primary, #3b82f6);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: inherit;
+}
+
+.add-user-modal__add-btn:hover:not(:disabled) {
+  background-color: var(--primary-dark, #2563eb);
+}
+
+.add-user-modal__add-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.add-user-modal__item--member {
+  opacity: 0.7;
+}
+
+.add-user-modal__member-badge {
+  padding: 0.375rem 0.75rem;
+  background-color: var(--hover-bg, #f3f4f6);
+  color: var(--text-secondary, #6b7280);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .add-user-modal {
+    --background: #1f2937;
+    --border-color: #374151;
+    --text-primary: #f9fafb;
+    --text-secondary: #9ca3af;
+    --hover-bg: #374151;
+    --primary: #60a5fa;
+    --primary-dark: #3b82f6;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  .add-user-modal-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+}
+
+/* Responsive */
+@media (max-width: 540px) {
+  .add-user-modal {
+    max-width: calc(100% - 2rem);
+    margin: 1rem;
+  }
+}

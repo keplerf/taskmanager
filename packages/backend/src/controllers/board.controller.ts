@@ -9,6 +9,7 @@ import type {
   CreateItemInput,
   UpdateItemInput,
   MoveItemInput,
+  UpdateItemAssigneesInput,
 } from '../validators/board.validators.js';
 
 export async function createBoard(
@@ -111,7 +112,8 @@ export async function updateItemValue(
     const value = await boardService.updateItemValue(
       req.params.itemId,
       req.params.columnId,
-      req.body.value
+      req.body.value,
+      req.userId
     );
     res.json({ success: true, data: value });
   } catch (error) {
@@ -152,6 +154,23 @@ export async function moveItem(
 ) {
   try {
     const item = await boardService.moveItem(req.params.itemId, req.body, req.userId!);
+    res.json({ success: true, data: item });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function updateItemAssignees(
+  req: AuthenticatedRequest & { params: { itemId: string }; body: UpdateItemAssigneesInput },
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const item = await boardService.updateItemAssignees(
+      req.params.itemId,
+      req.body.userIds,
+      req.userId!
+    );
     res.json({ success: true, data: item });
   } catch (error) {
     next(error);

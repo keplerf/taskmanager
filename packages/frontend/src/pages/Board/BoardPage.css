@@ -96,6 +96,11 @@
   font-style: italic;
 }
 
+.board-page__row--dragging {
+  opacity: 0.5;
+  background: #e5e7eb;
+}
+
 .board-page__error {
   text-align: center;
   padding: 3rem;
@@ -222,4 +227,88 @@
 
 .board-page__add-cancel:hover {
   background: #d1d5db;
+}
+
+/* Owner Column */
+.board-page__cell--owner {
+  width: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-page__owner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.board-page__owner-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.board-page__owner-avatar--placeholder {
+  background-color: #579bfc;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Date Column */
+.board-page__cell--date {
+  width: 120px;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+/* Created At Column */
+.board-page__cell--created {
+  width: 120px;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Tags Column */
+.board-page__cell--tags {
+  width: 180px;
+}
+
+.board-page__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.board-page__tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background-color: #e5e7eb;
+  color: #374151;
+  border-radius: 12px;
+}
+
+.board-page__tag-more {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+/* Empty Value */
+.board-page__empty-value {
+  color: #d1d5db;
+  font-size: 0.875rem;
 }

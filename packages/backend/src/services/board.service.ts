@@ -1,5 +1,6 @@
 import { prisma } from '../config/database.js';
 import { ApiError } from '../utils/ApiError.js';
+import { logActivity } from './activity.service.js';
 import type {
   CreateBoardInput,
   UpdateBoardInput,
@@ -52,8 +53,21 @@ export async function getBoardById(boardId: string, userId: string) {
         include: {
           items: {
             orderBy: { position: 'asc' },
-            include: {
+            select: {
+              id: true,
+              name: true,
+              position: true,
+              groupId: true,
+              createdAt: true,
               values: true,
+              createdBy: {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  avatarUrl: true,
+                },
+              },
               assignees: {
                 include: {
                   user: {
@@ -165,22 +179,61 @@ export async function createItem(input: CreateItemInput, userId: string) {
     _max: { position: true },
   });
 
-  return prisma.item.create({
+  const item = await prisma.item.create({
     data: {
       groupId: input.groupId,
       name: input.name,
       position: input.position ?? (maxPosition._max.position ?? -1) + 1,
       createdById: userId,
     },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
+      },
+      assignees: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
   });
+
+  // Log activity
+  await logActivity({
+    itemId: item.id,
+    userId,
+    action: 'CREATED',
+    description: `Created item "${item.name}"`,
+  });
+
+  return item;
 }
 
 export async function updateItemValue(
   itemId: string,
   columnId: string,
-  value: unknown
+  value: unknown,
+  userId?: string
 ) {
-  return prisma.itemValue.upsert({
+  // Get existing value and column info for activity logging
+  const existingValue = await prisma.itemValue.findUnique({
+    where: { itemId_columnId: { itemId, columnId } },
+    include: { column: { select: { title: true } } },
+  });
+
+  const result = await prisma.itemValue.upsert({
     where: {
       itemId_columnId: { itemId, columnId },
     },
@@ -190,11 +243,28 @@ export async function updateItemValue(
       columnId,
       value: value as object,
     },
+    include: { column: { select: { title: true } } },
   });
+
+  // Log activity if userId is provided
+  if (userId) {
+    const fieldName = result.column?.title || 'field';
+    await logActivity({
+      itemId,
+      userId,
+      action: 'FIELD_CHANGED',
+      field: fieldName,
+      oldValue: existingValue?.value,
+      newValue: value,
+      description: `Updated ${fieldName}`,
+    });
+  }
+
+  return result;
 }
 
 export async function updateItem(itemId: string, input: UpdateItemInput, userId: string) {
-  const item = await prisma.item.findUnique({
+  const existingItem = await prisma.item.findUnique({
     where: { id: itemId },
     include: {
       group: {
@@ -213,17 +283,54 @@ export async function updateItem(itemId: string, input: UpdateItemInput, userId:
     },
   });
 
-  if (!item || item.group.board.workspace.users.length === 0) {
+  if (!existingItem || existingItem.group.board.workspace.users.length === 0) {
     throw ApiError.notFound('Item not found');
   }
 
-  return prisma.item.update({
+  const updatedItem = await prisma.item.update({
     where: { id: itemId },
     data: {
       ...input,
       updatedById: userId,
     },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
+      },
+      assignees: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
+    },
   });
+
+  // Log activity for name change
+  if (input.name !== undefined && input.name !== existingItem.name) {
+    await logActivity({
+      itemId,
+      userId,
+      action: 'FIELD_CHANGED',
+      field: 'name',
+      oldValue: existingItem.name,
+      newValue: input.name,
+      description: `Changed name from "${existingItem.name}" to "${input.name}"`,
+    });
+  }
+
+  return updatedItem;
 }
 
 export async function deleteItem(itemId: string, userId: string) {
@@ -296,6 +403,111 @@ export async function moveItem(itemId: string, input: MoveItemInput, userId: str
       groupId: input.groupId,
       position: input.position ?? (maxPosition._max.position ?? -1) + 1,
       updatedById: userId,
+    },
+  });
+}
+
+export async function updateItemAssignees(itemId: string, userIds: string[], currentUserId: string) {
+  const item = await prisma.item.findUnique({
+    where: { id: itemId },
+    include: {
+      assignees: {
+        include: {
+          user: {
+            select: { id: true, firstName: true, lastName: true },
+          },
+        },
+      },
+      group: {
+        include: {
+          board: {
+            include: {
+              workspace: {
+                include: {
+                  users: { where: { userId: currentUserId } },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!item || item.group.board.workspace.users.length === 0) {
+    throw ApiError.notFound('Item not found');
+  }
+
+  // Track current assignees for activity logging
+  const currentAssigneeIds = item.assignees.map((a) => a.user.id);
+  const addedIds = userIds.filter((id) => !currentAssigneeIds.includes(id));
+  const removedIds = currentAssigneeIds.filter((id) => !userIds.includes(id));
+
+  // Delete all existing assignees and create new ones
+  await prisma.$transaction([
+    prisma.itemAssignee.deleteMany({ where: { itemId } }),
+    ...userIds.map((userId) =>
+      prisma.itemAssignee.create({
+        data: { itemId, userId },
+      })
+    ),
+  ]);
+
+  // Log activity for added assignees
+  for (const userId of addedIds) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { firstName: true, lastName: true },
+    });
+    if (user) {
+      await logActivity({
+        itemId,
+        userId: currentUserId,
+        action: 'ASSIGNEE_ADDED',
+        newValue: { userId, name: `${user.firstName} ${user.lastName}` },
+        description: `Added ${user.firstName} ${user.lastName} as assignee`,
+      });
+    }
+  }
+
+  // Log activity for removed assignees
+  for (const userId of removedIds) {
+    const removedUser = item.assignees.find((a) => a.user.id === userId)?.user;
+    if (removedUser) {
+      await logActivity({
+        itemId,
+        userId: currentUserId,
+        action: 'ASSIGNEE_REMOVED',
+        oldValue: { userId, name: `${removedUser.firstName} ${removedUser.lastName}` },
+        description: `Removed ${removedUser.firstName} ${removedUser.lastName} from assignees`,
+      });
+    }
+  }
+
+  // Return the updated item with assignees
+  return prisma.item.findUnique({
+    where: { id: itemId },
+    include: {
+      createdBy: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          avatarUrl: true,
+        },
+      },
+      assignees: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              avatarUrl: true,
+            },
+          },
+        },
+      },
     },
   });
 }

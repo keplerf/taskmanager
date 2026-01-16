@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import './LoginPage.css';
@@ -123,6 +123,12 @@ export default function LoginPage() {
             minLength={8}
           />
         </div>
+
+        {isLogin && (
+          <Link to="/forgot-password" className="login-page__forgot-link">
+            Forgot password?
+          </Link>
+        )}
 
         {!isLogin && (
           <div className="login-page__field">

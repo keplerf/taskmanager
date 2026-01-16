@@ -45,6 +45,25 @@
   color: #fff;
 }
 
+.main-layout__create-btn {
+  color: #fff;
+  background: #3b82f6;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: inherit;
+  margin-top: 0.5rem;
+}
+
+.main-layout__create-btn:hover {
+  background: #2563eb;
+}
+
 .main-layout__user {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 1rem;

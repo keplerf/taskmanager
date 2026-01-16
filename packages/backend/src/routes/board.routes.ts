@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { boardController } from '../controllers/index.js';
+import { activityController, boardController } from '../controllers/index.js';
 import { authMiddleware } from '../middleware/auth.middleware.js';
 import { validate } from '../middleware/validation.middleware.js';
 import {
@@ -12,6 +12,7 @@ import {
   updateItemSchema,
   deleteItemSchema,
   moveItemSchema,
+  updateItemAssigneesSchema,
 } from '../validators/board.validators.js';
 
 const router = Router();
@@ -30,9 +31,15 @@ router.patch('/items/:itemId', validate(updateItemSchema), boardController.updat
 router.delete('/items/:itemId', validate(deleteItemSchema), boardController.deleteItem);
 router.patch('/items/:itemId/move', validate(moveItemSchema), boardController.moveItem);
 router.patch(
+  '/items/:itemId/assignees',
+  validate(updateItemAssigneesSchema),
+  boardController.updateItemAssignees
+);
+router.patch(
   '/items/:itemId/values/:columnId',
   validate(updateItemValueSchema),
   boardController.updateItemValue
 );
+router.get('/items/:itemId/activities', activityController.getItemActivities);
 
 export default router;

@@ -22,12 +22,14 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
-  refreshTokens     RefreshToken[]
-  organizationUsers OrganizationUser[]
-  workspaceUsers    WorkspaceUser[]
-  assignedItems     ItemAssignee[]
-  createdItems      Item[]             @relation("ItemCreator")
-  updatedItems      Item[]             @relation("ItemUpdater")
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  organizationUsers   OrganizationUser[]
+  workspaceUsers      WorkspaceUser[]
+  assignedItems       ItemAssignee[]
+  createdItems        Item[]             @relation("ItemCreator")
+  updatedItems        Item[]             @relation("ItemUpdater")
+  activities          ItemActivity[]
 
   @@map("users")
 }
@@ -45,6 +47,21 @@ model RefreshToken {
   @@index([userId])
   @@index([token])
   @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  token     String    @unique @db.VarChar(500)
+  userId    String    @map("user_id")
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@map("password_reset_tokens")
 }
 
 // ============================================
@@ -213,12 +230,13 @@ model Item {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  group     ItemGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  createdBy User?          @relation("ItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
-  updatedBy User?          @relation("ItemUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
-  values    ItemValue[]
-  assignees ItemAssignee[]
-  ctas      ItemCta[]
+  group      ItemGroup      @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  createdBy  User?          @relation("ItemCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  updatedBy  User?          @relation("ItemUpdater", fields: [updatedById], references: [id], onDelete: SetNull)
+  values     ItemValue[]
+  assignees  ItemAssignee[]
+  ctas       ItemCta[]
+  activities ItemActivity[]
 
   @@index([groupId])
   @@index([createdById])
@@ -282,4 +300,38 @@ enum CtaType {
   LINK
   BUTTON
   ACTION
+}
+
+// ============================================
+// ACTIVITY TRACKING
+// ============================================
+
+model ItemActivity {
+  id          String       @id @default(uuid())
+  itemId      String       @map("item_id")
+  userId      String       @map("user_id")
+  action      ActivityType
+  field       String?
+  oldValue    Json?        @map("old_value")
+  newValue    Json?        @map("new_value")
+  description String?      @db.Text
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  item Item @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([itemId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("item_activities")
+}
+
+enum ActivityType {
+  CREATED
+  UPDATED
+  FIELD_CHANGED
+  ASSIGNEE_ADDED
+  ASSIGNEE_REMOVED
+  MOVED
+  DELETED
 }

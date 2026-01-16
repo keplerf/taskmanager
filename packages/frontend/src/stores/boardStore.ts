@@ -6,12 +6,22 @@ interface ItemValue {
   value: unknown;
 }
 
+interface UserInfo {
+  id: string;
+  firstName: string;
+  lastName: string;
+  avatarUrl: string | null;
+}
+
 interface Item {
   id: string;
   name: string;
   position: number;
   groupId: string;
+  createdAt: string;
   values: ItemValue[];
+  createdBy: UserInfo | null;
+  assignees: { user: UserInfo }[];
 }
 
 interface ItemGroup {
@@ -36,6 +46,7 @@ interface BoardData {
   id: string;
   name: string;
   description: string | null;
+  workspaceId: string;
   columns: BoardColumn[];
   groups: ItemGroup[];
 }
@@ -53,6 +64,8 @@ interface BoardState {
   // Optimistic updates
   updateItemName: (itemId: string, name: string) => void;
   updateItemValue: (itemId: string, columnId: string, value: unknown) => void;
+  updateItemOwner: (itemId: string, owner: UserInfo | null) => void;
+  updateItemAssignees: (itemId: string, assignees: { user: UserInfo }[]) => void;
   deleteItemOptimistic: (itemId: string) => void;
   moveItemOptimistic: (itemId: string, targetGroupId: string, position: number) => void;
 
@@ -111,6 +124,40 @@ export const useBoardStore = create<BoardState>((set) => ({
                 values: [...item.values, { id: crypto.randomUUID(), columnId, value }],
               };
             }),
+          })),
+        },
+      };
+    }),
+
+  // Optimistic update for item owner
+  updateItemOwner: (itemId, owner) =>
+    set((state) => {
+      if (!state.boardData) return state;
+      return {
+        boardData: {
+          ...state.boardData,
+          groups: state.boardData.groups.map((group) => ({
+            ...group,
+            items: group.items.map((item) =>
+              item.id === itemId ? { ...item, createdBy: owner } : item
+            ),
+          })),
+        },
+      };
+    }),
+
+  // Optimistic update for item assignees
+  updateItemAssignees: (itemId, assignees) =>
+    set((state) => {
+      if (!state.boardData) return state;
+      return {
+        boardData: {
+          ...state.boardData,
+          groups: state.boardData.groups.map((group) => ({
+            ...group,
+            items: group.items.map((item) =>
+              item.id === itemId ? { ...item, assignees } : item
+            ),
           })),
         },
       };

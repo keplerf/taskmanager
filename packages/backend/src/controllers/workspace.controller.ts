@@ -80,3 +80,73 @@ export async function deleteWorkspace(
     next(error);
   }
 }
+
+export async function getWorkspaceUsers(
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const users = await workspaceService.getWorkspaceUsers(req.params.id, req.userId!);
+    res.json({ success: true, data: users });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getUserOrganizations(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const organizations = await workspaceService.getUserOrganizations(req.userId!);
+    res.json({ success: true, data: organizations });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getAvailableUsers(
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const users = await workspaceService.getAvailableUsersForWorkspace(req.params.id, req.userId!);
+    res.json({ success: true, data: users });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function addUserToWorkspace(
+  req: AuthenticatedRequest & { params: { id: string }; body: { userId: string; role?: string } },
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const workspaceUser = await workspaceService.addUserToWorkspace(
+      req.params.id,
+      req.body.userId,
+      req.userId!,
+      req.body.role as 'MEMBER' | 'ADMIN' | 'VIEWER'
+    );
+    res.status(201).json({ success: true, data: workspaceUser });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getWorkspaceTags(
+  req: AuthenticatedRequest & { params: { id: string } },
+  res: Response,
+  next: NextFunction
+) {
+  try {
+    const tags = await workspaceService.getWorkspaceTags(req.params.id, req.userId!);
+    res.json({ success: true, data: tags });
+  } catch (error) {
+    next(error);
+  }
+}
