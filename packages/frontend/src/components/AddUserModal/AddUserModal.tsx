@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { workspaceService } from '../../services';
 import type { AvailableUser } from '../../services/workspaceService';
 import './AddUserModal.css';
+import Button from "@/components/Atoms/Button";
 
 interface AddUserModalProps {
   workspaceId: string;
@@ -55,9 +56,9 @@ export function AddUserModal({ workspaceId, onClose, onUserAdded }: AddUserModal
       <div className="add-user-modal">
         <div className="add-user-modal__header">
           <h2 className="add-user-modal__title">Add Member</h2>
-          <button className="add-user-modal__close" onClick={onClose}>
+          <Button size='small' appearance='outline' onClick={onClose}>
             &times;
-          </button>
+          </Button>
         </div>
         <div className="add-user-modal__content">
           {error && <div className="add-user-modal__error">{error}</div>}
@@ -94,13 +95,14 @@ export function AddUserModal({ workspaceId, onClose, onUserAdded }: AddUserModal
                   {user.isMember ? (
                     <span className="add-user-modal__member-badge">Member</span>
                   ) : (
-                    <button
+                      <Button
+                      size='small'
                       className="add-user-modal__add-btn"
                       onClick={() => handleAddUser(user.id)}
                       disabled={addingUserId === user.id}
                     >
                       {addingUserId === user.id ? 'Adding...' : 'Add'}
-                    </button>
+                    </Button>
                   )}
                 </li>
               ))}

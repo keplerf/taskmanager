@@ -158,7 +158,7 @@
 .task-sidebar__divider {
   height: 1px;
   background-color: var(--border-color, #e5e7eb);
-  margin: 1.5rem 0;
+  margin: 0.5rem 0;
 }
 
 .task-sidebar__section-title {
@@ -431,7 +431,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.25rem 0.5rem;
+  padding: 0.20rem 0.5rem;
   font-size: 0.8125rem;
   font-weight: 500;
   background-color: var(--primary, #3b82f6);
@@ -442,33 +442,6 @@
 
 .task-sidebar__tag-chip:hover {
   background-color: var(--primary-dark, #2563eb);
-}
-
-.task-sidebar__tag-remove {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  padding: 0;
-  margin-left: 0.125rem;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-size: 0.875rem;
-  line-height: 1;
-  cursor: pointer;
-  transition: background-color 0.15s;
-}
-
-.task-sidebar__tag-remove:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.4);
-}
-
-.task-sidebar__tag-remove:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .task-sidebar__tags-input-wrapper {

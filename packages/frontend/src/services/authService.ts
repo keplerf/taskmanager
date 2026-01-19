@@ -1,36 +1,9 @@
 import { api } from './api';
 import { useAuthStore } from '../stores/authStore';
-
-interface LoginRequest {
-  email: string;
-  password: string;
-}
-
-interface RegisterRequest {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  organizationName?: string;
-}
-
-interface AuthResponse {
-  success: boolean;
-  data: {
-    user: {
-      id: string;
-      email: string;
-      firstName: string;
-      lastName: string;
-      avatarUrl: string | null;
-    };
-    accessToken: string;
-    refreshToken: string;
-  };
-}
+import type { ApiResponse, LoginRequest, RegisterRequest, AuthResponse } from '../types';
 
 export async function login(credentials: LoginRequest) {
-  const response = await api.post<AuthResponse>('/auth/login', credentials);
+  const response = await api.post<ApiResponse<AuthResponse>>('/auth/login', credentials);
   const { user, accessToken, refreshToken } = response.data.data;
 
   useAuthStore.getState().setAuth(user, accessToken);
@@ -40,7 +13,7 @@ export async function login(credentials: LoginRequest) {
 }
 
 export async function register(data: RegisterRequest) {
-  const response = await api.post<AuthResponse>('/auth/register', data);
+  const response = await api.post<ApiResponse<AuthResponse>>('/auth/register', data);
   const { user, accessToken, refreshToken } = response.data.data;
 
   useAuthStore.getState().setAuth(user, accessToken);
@@ -64,19 +37,12 @@ export async function logout() {
   localStorage.removeItem('refreshToken');
 }
 
-interface MessageResponse {
-  success: boolean;
-  data: {
-    message: string;
-  };
-}
-
 export async function forgotPassword(email: string) {
-  const response = await api.post<MessageResponse>('/auth/forgot-password', { email });
+  const response = await api.post<ApiResponse<{ message: string }>>('/auth/forgot-password', { email });
   return response.data.data;
 }
 
 export async function resetPassword(token: string, password: string) {
-  const response = await api.post<MessageResponse>('/auth/reset-password', { token, password });
+  const response = await api.post<ApiResponse<{ message: string }>>('/auth/reset-password', { token, password });
   return response.data.data;
 }

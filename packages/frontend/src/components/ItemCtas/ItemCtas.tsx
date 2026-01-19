@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useOptimisticCtas } from '../../hooks/useOptimisticCtas';
 import type { Cta, CtaType } from '../../services/ctaService';
 import './ItemCtas.css';
+import { Button } from '../Atoms/Button/Button';
 
 interface ItemCtasProps {
   itemId: string;
@@ -119,14 +120,14 @@ export default function ItemCtas({ itemId, initialCtas, onCtasChange }: ItemCtas
       <div className="item-ctas__header">
         <h4 className="item-ctas__title">Call to Actions</h4>
         {!showForm && (
-          <button
+          <Button
             type="button"
             className="item-ctas__add-btn"
             onClick={() => setShowForm(true)}
             disabled={isPending}
           >
             + Add CTA
-          </button>
+            </Button>
         )}
       </div>
 

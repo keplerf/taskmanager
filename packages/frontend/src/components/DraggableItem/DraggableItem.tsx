@@ -1,13 +1,10 @@
-import { useSortable } from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import type { ReactNode, CSSProperties } from 'react';
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import type { CSSProperties } from "react";
 
-interface DraggableItemProps {
-  id: string;
-  children: ReactNode;
-}
+import type { BasicItemProps } from "../../types/api";
 
-export function DraggableItem({ id, children }: DraggableItemProps) {
+export function DraggableItem({ id, children }: BasicItemProps) {
   const {
     attributes,
     listeners,
@@ -21,7 +18,7 @@ export function DraggableItem({ id, children }: DraggableItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    cursor: isDragging ? 'grabbing' : 'grab',
+    cursor: isDragging ? "grabbing" : "grab",
   };
 
   return (
