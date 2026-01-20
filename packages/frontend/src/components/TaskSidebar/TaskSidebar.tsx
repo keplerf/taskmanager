@@ -5,6 +5,7 @@ import type { WorkspaceUser } from '../../services/workspaceService';
 import type { Activity } from '../../services/boardService';
 import { formatValueForDisplay } from '../../utils';
 import './TaskSidebar.css';
+import { Button } from '../Atoms/Button/Button';
 
 interface TaskSidebarProps {
   onClose: () => void;
@@ -92,7 +93,9 @@ function TagsEditor({
         {tags.map((tag, index) => (
           <span key={index} className="task-sidebar__tag-chip">
             {tag}
-            <button
+            <Button
+              size="small"
+              appearance="ghost"
               type="button"
               className="task-sidebar__tag-remove"
               onClick={() => handleRemoveTag(tag)}
@@ -100,7 +103,7 @@ function TagsEditor({
               aria-label={`Remove ${tag}`}
             >
               ×
-            </button>
+            </Button>
           </span>
         ))}
       </div>

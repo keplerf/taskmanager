@@ -21,6 +21,7 @@ import { TaskSidebar } from "../../components/TaskSidebar";
 import { DraggableItem } from "../../components/DraggableItem";
 import { getColumnValue } from "../../utils";
 import "./BoardPage.css";
+import Button from "@/components/Atoms/Button";
 
 function TrashIcon() {
   return (
@@ -394,13 +395,14 @@ export default function BoardPage() {
                           })()}
                         </div>
                         <div className="board-page__cell board-page__cell--actions">
-                          <button
-                            className="board-page__delete-btn"
+                          <Button
+                            appearance="secondary"
+                            size="small"
                             onClick={(e) => handleDeleteItem(e, item.id)}
                             title="Delete item"
                           >
                             <TrashIcon />
-                          </button>
+                          </Button>
                         </div>
                       </div>
                     </DraggableItem>

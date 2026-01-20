@@ -1,28 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import type { AuthState } from '../types';
 
 const SESSION_DURATION_MS = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-
-interface User {
-  id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-}
-
-interface AuthState {
-  user: User | null;
-  accessToken: string | null;
-  isAuthenticated: boolean;
-  sessionExpiresAt: number | null;
-
-  setAuth: (user: User, accessToken: string) => void;
-  setAccessToken: (token: string) => void;
-  logout: () => void;
-  isSessionValid: () => boolean;
-  checkAndRestoreSession: () => boolean;
-}
 
 export const useAuthStore = create<AuthState>()(
   persist(

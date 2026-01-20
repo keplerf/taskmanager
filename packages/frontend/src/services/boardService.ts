@@ -1,67 +1,9 @@
-import { api } from './api';
+import { api } from "./api";
+import type { ApiResponse, Board, Item, Activity } from "../types";
+import type { CreateBoardRequest, UpdateBoardRequest, CreateColumnRequest, CreateGroupRequest } from "../../../shared/src/types/api/boards.api";
 
-interface ItemValue {
-  id: string;
-  columnId: string;
-  value: unknown;
-}
-
-interface UserInfo {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-}
-
-interface Item {
-  id: string;
-  name: string;
-  position: number;
-  groupId: string;
-  createdAt: string;
-  values: ItemValue[];
-  createdBy: UserInfo | null;
-  assignees: { user: UserInfo }[];
-}
-
-interface ItemGroup {
-  id: string;
-  name: string;
-  color: string;
-  position: number;
-  collapsed: boolean;
-  items: Item[];
-}
-
-interface BoardColumn {
-  id: string;
-  title: string;
-  type: string;
-  width: number;
-  position: number;
-}
-
-interface Board {
-  id: string;
-  name: string;
-  description: string | null;
-  workspaceId: string;
-  isArchived: boolean;
-  columns: BoardColumn[];
-  groups: ItemGroup[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
-
-export async function createBoard(data: {
-  name: string;
-  description?: string;
-  workspaceId: string;
-}) {
-  const response = await api.post<ApiResponse<Board>>('/boards', data);
+export async function createBoard(data: CreateBoardRequest) {
+  const response = await api.post<ApiResponse<Board>>("/boards", data);
   return response.data.data;
 }
 
@@ -72,7 +14,7 @@ export async function getBoard(id: string) {
 
 export async function updateBoard(
   id: string,
-  data: { name?: string; description?: string; isArchived?: boolean }
+  data: UpdateBoardRequest
 ) {
   const response = await api.patch<ApiResponse<Board>>(`/boards/${id}`, data);
   return response.data.data;
@@ -82,27 +24,21 @@ export async function deleteBoard(id: string) {
   await api.delete(`/boards/${id}`);
 }
 
-export async function createColumn(data: {
-  boardId: string;
-  title: string;
-  type: string;
-  position?: number;
-}) {
-  const response = await api.post<ApiResponse<unknown>>('/boards/columns', data);
+export async function createColumn(data: CreateColumnRequest) {
+  const response = await api.post<ApiResponse<unknown>>(
+    "/boards/columns",
+    data
+  );
   return response.data.data;
 }
 
-export async function createGroup(data: {
-  boardId: string;
-  name: string;
-  color?: string;
-}) {
-  const response = await api.post<ApiResponse<unknown>>('/boards/groups', data);
+export async function createGroup(data: CreateGroupRequest) {
+  const response = await api.post<ApiResponse<unknown>>("/boards/groups", data);
   return response.data.data;
 }
 
 export async function createItem(data: { groupId: string; name: string }) {
-  const response = await api.post<ApiResponse<Item>>('/boards/items', data);
+  const response = await api.post<ApiResponse<Item>>("/boards/items", data);
   return response.data.data;
 }
 
@@ -153,22 +89,6 @@ export async function updateItemAssignees(itemId: string, userIds: string[]) {
   return response.data.data;
 }
 
-export interface Activity {
-  id: string;
-  action: string;
-  field: string | null;
-  oldValue: unknown;
-  newValue: unknown;
-  description: string | null;
-  createdAt: string;
-  user: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    avatarUrl: string | null;
-  };
-}
-
 export async function getItemActivities(
   itemId: string,
   limit = 50,
@@ -179,3 +99,6 @@ export async function getItemActivities(
   );
   return response.data.data;
 }
+
+// Re-export Activity type for backwards compatibility
+export type { Activity } from "../types";

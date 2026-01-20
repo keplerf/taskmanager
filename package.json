@@ -22,9 +22,13 @@
     "clean": "rm -rf packages/*/node_modules packages/*/dist node_modules"
   },
   "devDependencies": {
+    "sass-embedded": "^1.97.2",
     "typescript": "~5.9.3"
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "motion": "^12.26.2"
   }
 }

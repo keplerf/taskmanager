@@ -81,7 +81,7 @@
   font-size: 0.625rem;
 }
 
-.workspace-page__add-member-btn {
+/* .workspace-page__add-member-btn {
   padding: 0.625rem 1rem;
   background-color: #3b82f6;
   color: #ffffff;
@@ -97,7 +97,7 @@
 
 .workspace-page__add-member-btn:hover {
   background-color: #2563eb;
-}
+} */
 
 .workspace-page__boards {
   background: #fff;
@@ -161,6 +161,7 @@
 .workspace-page__board-card:hover {
   background: #fff;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
 }
 
 .workspace-page__board-card-header {
@@ -185,6 +186,7 @@
 
 .workspace-page__board-card:hover .workspace-page__board-actions {
   opacity: 1;
+ 
 }
 
 .workspace-page__board-action-btn {

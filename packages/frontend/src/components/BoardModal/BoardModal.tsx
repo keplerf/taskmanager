@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
-import * as boardService from '../../services/boardService';
-import './BoardModal.css';
+import { useState, useEffect } from "react";
+import * as boardService from "../../services/boardService";
+import "./BoardModal.css";
+import Button from "@/components/Atoms/Button";
 
 interface Board {
   id: string;
@@ -15,9 +16,14 @@ interface BoardModalProps {
   onSaved: () => void;
 }
 
-export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalProps) {
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+export function BoardModal({
+  workspaceId,
+  board,
+  onClose,
+  onSaved,
+}: BoardModalProps) {
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +32,7 @@ export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalP
   useEffect(() => {
     if (board) {
       setName(board.name);
-      setDescription(board.description || '');
+      setDescription(board.description || "");
     }
   }, [board]);
 
@@ -34,7 +40,7 @@ export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalP
     e.preventDefault();
 
     if (!name.trim()) {
-      setError('Board name is required');
+      setError("Board name is required");
       return;
     }
 
@@ -57,7 +63,7 @@ export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalP
       onSaved();
       onClose();
     } catch (err) {
-      setError(isEditing ? 'Failed to update board' : 'Failed to create board');
+      setError(isEditing ? "Failed to update board" : "Failed to create board");
     } finally {
       setIsSubmitting(false);
     }
@@ -69,7 +75,7 @@ export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalP
       <div className="board-modal">
         <div className="board-modal__header">
           <h2 className="board-modal__title">
-            {isEditing ? 'Edit Board' : 'Create Board'}
+            {isEditing ? "Edit Board" : "Create Board"}
           </h2>
           <button className="board-modal__close" onClick={onClose}>
             &times;
@@ -102,26 +108,26 @@ export function BoardModal({ workspaceId, board, onClose, onSaved }: BoardModalP
           </div>
 
           <div className="board-modal__actions">
-            <button
+            <Button
               type="button"
               className="board-modal__btn board-modal__btn--secondary"
               onClick={onClose}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               className="board-modal__btn board-modal__btn--primary"
               disabled={isSubmitting}
             >
               {isSubmitting
                 ? isEditing
-                  ? 'Saving...'
-                  : 'Creating...'
+                  ? "Saving..."
+                  : "Creating..."
                 : isEditing
-                  ? 'Save Changes'
-                  : 'Create Board'}
-            </button>
+                  ? "Save Changes"
+                  : "Create Board"}
+            </Button>
           </div>
         </form>
       </div>

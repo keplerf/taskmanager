@@ -62,27 +62,7 @@
   margin: 0;
 }
 
-.add-user-modal__close {
-  background: none;
-  border: none;
-  font-size: 1.75rem;
-  line-height: 1;
-  color: var(--text-secondary, #6b7280);
-  cursor: pointer;
-  padding: 0;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 6px;
-  transition: background-color 0.2s, color 0.2s;
-}
 
-.add-user-modal__close:hover {
-  background-color: var(--hover-bg, #f3f4f6);
-  color: var(--text-primary, #111827);
-}
 
 .add-user-modal__content {
   padding: 1rem 1.5rem 1.5rem;
@@ -166,28 +146,6 @@
 .add-user-modal__user-email {
   font-size: 0.75rem;
   color: var(--text-secondary, #6b7280);
-}
-
-.add-user-modal__add-btn {
-  padding: 0.5rem 1rem;
-  background-color: var(--primary, #3b82f6);
-  color: #ffffff;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  font-family: inherit;
-}
-
-.add-user-modal__add-btn:hover:not(:disabled) {
-  background-color: var(--primary-dark, #2563eb);
-}
-
-.add-user-modal__add-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 
 .add-user-modal__item--member {

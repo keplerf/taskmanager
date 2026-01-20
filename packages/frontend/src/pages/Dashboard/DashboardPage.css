@@ -58,6 +58,8 @@
 .dashboard-page__card:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transform: translateY(-2px);
+  text-decoration: none;
+  background: #f3f4f6;
 }
 
 .dashboard-page__card h3 {

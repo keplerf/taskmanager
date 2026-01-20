@@ -1,26 +1,12 @@
 import { api } from './api';
-
-interface Workspace {
-  id: string;
-  name: string;
-  description: string | null;
-  color: string;
-  organizationId: string;
-}
-
-interface WorkspaceWithBoards extends Workspace {
-  boards: {
-    id: string;
-    name: string;
-    description: string | null;
-    isArchived: boolean;
-  }[];
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
+import type {
+  ApiResponse,
+  Workspace,
+  WorkspaceWithBoards,
+  WorkspaceUser,
+  Organization,
+  AvailableUser,
+} from '../types';
 
 export async function getWorkspaces() {
   const response = await api.get<ApiResponse<WorkspaceWithBoards[]>>('/workspaces');
@@ -56,37 +42,14 @@ export async function deleteWorkspace(id: string) {
   await api.delete(`/workspaces/${id}`);
 }
 
-export interface WorkspaceUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  avatarUrl: string | null;
-  email: string;
-  role: string;
-}
-
 export async function getWorkspaceUsers(workspaceId: string) {
   const response = await api.get<ApiResponse<WorkspaceUser[]>>(`/workspaces/${workspaceId}/users`);
   return response.data.data;
 }
 
-export interface Organization {
-  id: string;
-  name: string;
-}
-
 export async function getUserOrganizations() {
   const response = await api.get<ApiResponse<Organization[]>>('/workspaces/organizations');
   return response.data.data;
-}
-
-export interface AvailableUser {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  avatarUrl: string | null;
-  isMember: boolean;
 }
 
 export async function getAvailableUsers(workspaceId: string) {
@@ -103,3 +66,6 @@ export async function getWorkspaceTags(workspaceId: string) {
   const response = await api.get<ApiResponse<string[]>>(`/workspaces/${workspaceId}/tags`);
   return response.data.data;
 }
+
+// Re-export types for backwards compatibility
+export type { WorkspaceUser, Organization, AvailableUser } from '../types';

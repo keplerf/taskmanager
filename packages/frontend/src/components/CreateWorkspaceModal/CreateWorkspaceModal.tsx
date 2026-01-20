@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { workspaceService } from '../../services';
 import type { Organization } from '../../services/workspaceService';
 import './CreateWorkspaceModal.css';
+import { Button } from '../Atoms/Button/Button';
 
 interface CreateWorkspaceModalProps {
   onClose: () => void;
@@ -58,9 +59,9 @@ export function CreateWorkspaceModal({ onClose, onSuccess }: CreateWorkspaceModa
       <div className="modal">
         <div className="modal__header">
           <h2 className="modal__title">Create Workspace</h2>
-          <button className="modal__close" onClick={onClose}>
+          <Button size='small' appearance='outline' onClick={onClose}>
             &times;
-          </button>
+          </Button >
         </div>
         <form onSubmit={handleSubmit} className="modal__form">
           {error && <div className="modal__error">{error}</div>}
@@ -118,21 +119,21 @@ export function CreateWorkspaceModal({ onClose, onSuccess }: CreateWorkspaceModa
           )}
 
           <div className="modal__actions">
-            <button
+            <Button
               type="button"
               className="modal__btn modal__btn--secondary"
               onClick={onClose}
               disabled={isLoading}
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
               className="modal__btn modal__btn--primary"
               disabled={isLoading || !name.trim() || !organizationId}
             >
               {isLoading ? 'Creating...' : 'Create Workspace'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

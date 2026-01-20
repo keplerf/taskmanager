@@ -1,40 +1,5 @@
 import { api } from './api';
-
-export type CtaType = 'LINK' | 'BUTTON' | 'ACTION';
-
-export interface Cta {
-  id: string;
-  itemId: string;
-  label: string;
-  url: string | null;
-  type: CtaType;
-  color: string;
-  position: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateCtaInput {
-  itemId: string;
-  label: string;
-  url?: string;
-  type?: CtaType;
-  color?: string;
-  position?: number;
-}
-
-export interface UpdateCtaInput {
-  label?: string;
-  url?: string;
-  type?: CtaType;
-  color?: string;
-  position?: number;
-}
-
-interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
+import type { ApiResponse, Cta, CreateCtaInput, UpdateCtaInput } from '../types';
 
 export async function getCtasByItem(itemId: string): Promise<Cta[]> {
   const response = await api.get<ApiResponse<Cta[]>>(`/boards/items/${itemId}/ctas`);
@@ -62,3 +27,6 @@ export async function reorderCtas(itemId: string, ctaIds: string[]): Promise<Cta
   );
   return response.data.data;
 }
+
+// Re-export types for backwards compatibility
+export type { Cta, CtaType, CreateCtaInput, UpdateCtaInput } from '../types';

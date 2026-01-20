@@ -3,6 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { authService } from '../../services';
 import { useAuthStore } from '../../stores/authStore';
 import './LoginPage.css';
+import { Button } from '../../components/Atoms/Button/Button';
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -143,25 +144,25 @@ export default function LoginPage() {
           </div>
         )}
 
-        <button
+        <Button
           type="submit"
           className="login-page__submit"
           disabled={isLoading}
         >
           {isLoading ? 'Loading...' : isLogin ? 'Sign In' : 'Create Account'}
-        </button>
+        </Button>
       </form>
 
       <div className="login-page__toggle">
         {isLogin ? (
           <p>
             Don't have an account?{' '}
-            <button onClick={() => setIsLogin(false)}>Sign up</button>
+            <Button appearance='text' onClick={() => setIsLogin(false)}>Sign up</Button>
           </p>
         ) : (
           <p>
             Already have an account?{' '}
-            <button onClick={() => setIsLogin(true)}>Sign in</button>
+            <Button appearance='text'onClick={() => setIsLogin(true)}>Sign in</Button>
           </p>
         )}
       </div>
